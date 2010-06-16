@@ -36,6 +36,13 @@ module Friendly
         Hash[*self.class.attributes.keys.map { |n| [n, send(n)] }.flatten]
       end
 
+      def to_serializable
+        self.class.attributes.keys.inject({}) do |acc, k|
+          acc[k] = send("#{k}_serializable")
+          acc
+        end
+      end
+
       def assign_default_values
         self.class.attributes.values.each { |a| a.assign_default_value(self) }
       end

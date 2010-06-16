@@ -34,7 +34,7 @@ describe "Friendly::Translator" do
         @hash = {:name => "Stewie"}
         @time.stubs(:new).returns(Time.new)
         @serializer.stubs(:generate).with(@hash).returns("SOME JSON")
-        @document = stub(:to_hash     => @hash, 
+        @document = stub(:to_serializable     => @hash, 
                          :new_record? => true, 
                          :created_at  => nil,
                          :id          => 12345)
@@ -63,7 +63,7 @@ describe "Friendly::Translator" do
                  :updated_at => Time.new}
         @time.stubs(:new).returns(Time.new + 5000)
         @serializer.stubs(:generate).returns("SOME JSON")
-        @document = stub(:to_hash     => @hash, 
+        @document = stub(:to_serializable => @hash,
                          :created_at  => @created_at,
                          :new_record? => false,
                          :id          => 12345)

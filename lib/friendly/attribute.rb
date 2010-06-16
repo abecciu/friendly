@@ -1,16 +1,18 @@
+
 module Friendly
   class Attribute
     class << self
-      def register_type(type, sql_type, &block)
+      def register_type(type, sql_type, serializabler = nil, &block)
         sql_types[type.name] = sql_type
         converters[type]     = block
+        serializablers[type] = serializabler if serializabler
       end
 
       def deregister_type(type)
         sql_types.delete(type.name)
         converters.delete(type)
       end
-        
+
       def sql_type(type)
         sql_types[type.name]
       end
@@ -23,6 +25,10 @@ module Friendly
         @converters ||= {}
       end
 
+      def serializablers
+        @serializablers ||= {}
+      end
+
       def custom_type?(klass)
         !sql_type(klass).nil?
       end
@@ -30,7 +36,7 @@ module Friendly
 
     converters[Integer] = lambda { |s| s.to_i }
     converters[String]  = lambda { |s| s.to_s }
-    
+
     attr_reader :klass, :name, :type, :default_value
 
     def initialize(klass, name, type, options = {})
@@ -43,6 +49,16 @@ module Friendly
 
     def typecast(value)
       !type || value.is_a?(type) ? value : convert(value)
+    end
+
+    def to_serializable(value)
+      return value if value.nil?
+
+      if serializablers[type].nil?
+        value
+      else
+        serializablers[type].call(value)
+      end
     end
 
     def convert(value)
@@ -63,7 +79,7 @@ module Friendly
     def assign_default_value(document)
       document.send(:"#{name}=", default)
     end
-      
+
     protected
       def build_accessors
         n = name
@@ -74,6 +90,10 @@ module Friendly
             def #{n}=(value)
               will_change(:#{n})
               @#{n} = self.class.attributes[:#{n}].typecast(value)
+            end
+
+            def #{n}_serializable
+              self.class.attributes[:#{n}].to_serializable(#{n})
             end
 
             def #{n}_changed?
@@ -93,6 +113,10 @@ module Friendly
 
       def converters
         self.class.converters
+      end
+
+      def serializablers
+        self.class.serializablers
       end
   end
 end

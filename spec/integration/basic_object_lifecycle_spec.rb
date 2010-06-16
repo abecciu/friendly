@@ -39,7 +39,7 @@ describe "Creating and retrieving an object" do
 
   it "doesn't serialize id, created_at, or updated_at in the attributes column" do
     result = $db.from("users").first(:id => @user.id)
-    attrs  = JSON.parse(result[:attributes])
+    attrs  = Friendly.serializer.parse(result[:attributes])
     attrs.keys.should_not include("id")
     attrs.keys.should_not include("created_at")
     attrs.keys.should_not include("updated_at")

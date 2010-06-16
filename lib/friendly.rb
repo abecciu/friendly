@@ -18,16 +18,32 @@ require 'friendly/storage_proxy'
 require 'friendly/translator'
 require 'friendly/uuid'
 
-require 'json/pure'
 require 'will_paginate/collection'
 
 module Friendly
+
   class << self
-    attr_accessor :datastore, :db, :cache
+    attr_accessor :datastore, :db, :cache, :serializer
 
     def configure(config)
       self.db        = Sequel.connect(config)
       self.datastore = DataStore.new(db)
+      load_serializer(config[:serializer])
+    end
+
+    def load_serializer(serializer)
+      if serializer.nil? || serializer.is_a?(String) || serializer.is_a?(Symbol)
+        name = serializer.nil? ? 'json_pure' : serializer.to_s
+        begin
+          require "friendly/serializers/#{name}"
+        rescue LoadError
+          raise BadSerializer, "serializer '#{name}' doesn't exist."
+        end
+      elsif serializer.respond_to?(:generate) || serializer.respond_to?(:parse)
+        Friendly.seriazlier = serializer
+      else
+        raise BadSerializer, "serializer class should respond to parse and generate."
+      end
     end
 
     def batch
@@ -50,4 +66,6 @@ module Friendly
   class MissingIndex < Error; end
   class NoConverterExists < Friendly::Error; end
   class NotSupported < Friendly::Error; end
+  class BadSerializer < Friendly::Error; end
+
 end

@@ -1,6 +1,6 @@
 class FakeDocument
   attr_accessor :id, :created_at, :to_hash, :new_record, :table_name,
-                :indexes, :name, :updated_at, :where_clause
+                :indexes, :name, :updated_at, :where_clause, :to_serializable
 
   def initialize(opts = {})
     opts.each { |k,v| send("#{k}=", v) }
