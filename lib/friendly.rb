@@ -40,7 +40,7 @@ module Friendly
           raise BadSerializer, "serializer '#{name}' doesn't exist."
         end
       elsif serializer.respond_to?(:generate) || serializer.respond_to?(:parse)
-        Friendly.seriazlier = serializer
+        Friendly.serializer = serializer
       else
         raise BadSerializer, "serializer class should respond to parse and generate."
       end
