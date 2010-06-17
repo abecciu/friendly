@@ -36,6 +36,11 @@ describe "Friendly::Attribute" do
     @object.should be_name_changed
   end
 
+  it "creates an 'attr_serializable' getter" do
+    @object.name = "Something"
+    @object.name_serializable.should == "Something"
+  end
+
   it "typecasts values using the converter function" do
     uuid = Friendly::UUID.new
     @id.typecast(uuid.to_s).should == uuid
@@ -65,6 +70,12 @@ describe "Friendly::Attribute" do
     @no_type.typecast(true).should == true
   end
 
+  it "converts value to serializable using the serializabler function" do
+    uuid = Friendly::UUID.new
+    f = Friendly::Attribute.serializablers[Friendly::UUID]
+    @id.to_serializable(uuid).should == f.call(uuid)
+  end
+
   it "can have a default value" do
     @default.default.should == "asdf"
     @obj = @klass.new
@@ -84,8 +95,8 @@ describe "Friendly::Attribute" do
 
   describe "registering a type" do
     before do
-      @klass = Class.new
-      Friendly::Attribute.register_type(@klass, "binary(16)") { |t| t.to_i }
+      @klass = Class.new { def hello ; 'hello' ; end }
+      Friendly::Attribute.register_type(@klass, "binary(16)", lambda {|o| o.hello}) { |t| t.to_i }
     end
 
     after { Friendly::Attribute.deregister_type(@klass) }
@@ -101,12 +112,16 @@ describe "Friendly::Attribute" do
     it "is custom_type?(@klass)" do
       Friendly::Attribute.should be_custom_type(@klass)
     end
+
+    it "registers a serializabler" do
+      Friendly::Attribute.new(@klass, :test, @klass).to_serializable(@klass.new).should == 'hello'
+    end
   end
 
   describe "deregistering a type" do
     before do
       @klass = Class.new
-      Friendly::Attribute.register_type(@klass, "whatever") {}
+      Friendly::Attribute.register_type(@klass, "whatever", lambda {|o| o}) {}
       Friendly::Attribute.deregister_type(@klass)
     end
 
@@ -120,6 +135,10 @@ describe "Friendly::Attribute" do
 
     it "is not custom_type?(@klass)" do
       Friendly::Attribute.should_not be_custom_type(@klass)
+    end
+
+    it "removes the serializabler" do
+      Friendly::Attribute.serializablers.should_not be_has_key(@klass)
     end
   end
 end

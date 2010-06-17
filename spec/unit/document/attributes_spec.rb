@@ -53,6 +53,17 @@ describe "Friendly::Document::Attributes" do
     end
   end
 
+  describe "#to_serializable" do
+    before do
+      @klass.attribute(:id, Friendly::UUID)
+      @object = @klass.new(:name => "Stewie", :id => Friendly::UUID.new)
+    end
+
+    it "creates a hash that contains its attributes with serializable values" do
+      @object.to_serializable.should == {:name => "Stewie", :id => @object.id_serializable}
+    end
+  end
+
   describe "#assign" do
     before do
       @object = @klass.new
