@@ -5,12 +5,13 @@ module Friendly
       def register_type(type, sql_type, serializabler = nil, &block)
         sql_types[type.name] = sql_type
         converters[type]     = block
-        serializablers[type] = serializabler if serializabler
+        serializablers[type] = serializabler if !serializabler.nil?
       end
 
       def deregister_type(type)
         sql_types.delete(type.name)
         converters.delete(type)
+        serializablers.delete(type)
       end
 
       def sql_type(type)

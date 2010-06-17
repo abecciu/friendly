@@ -35,11 +35,11 @@ module Friendly
       if serializer.nil? || serializer.is_a?(String) || serializer.is_a?(Symbol)
         name = serializer.nil? ? 'json_pure' : serializer.to_s
         begin
-          require "friendly/serializers/#{name}"
+          load File.join(File.dirname(__FILE__), 'friendly', 'serializers', "#{name}.rb")
         rescue LoadError
           raise BadSerializer, "serializer '#{name}' doesn't exist."
         end
-      elsif serializer.respond_to?(:generate) || serializer.respond_to?(:parse)
+      elsif serializer.respond_to?(:generate) && serializer.respond_to?(:parse)
         Friendly.serializer = serializer
       else
         raise BadSerializer, "serializer class should respond to parse and generate."
