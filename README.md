@@ -42,7 +42,7 @@ Friendly always stores your documents in a table with the same schema:
   - added_id is there because InnoDB stores records on disk in sequential primary key order. Having recently inserted objects together on disk is usually a win.
   - id is a UUID (instance of Friendly::UUID).
   - created_at and updated_at are exactly what they sound like - automatically managed by Friendly.
-  - attributes is where all the attributes of your object are stored. They get serialized to json and stored in there.
+  - attributes is where all the attributes of your object are stored. They get serialized to json by default and stored in there.
 
 We can instantiate and save our model like an ActiveRecord object.
 
@@ -226,6 +226,37 @@ Now that the the new table has been created, you need to copy the .rake file inc
     $ KLASS=User FIELDS=name,created_at rake friendly:build_index
 
 If you're running this in production, you'll probably want to fire up GNU screen so that it'll keep running even if you lose your SSH connection. When this task completes, the index is populated and ready to go!
+
+
+Pluggable Serializers
+=====================
+
+Friendly supports pluggable serializers and comes with built in ones like json, marshal, yajl and msgpack, being json the default.
+To select a built in serializer all you have to do is set the serializer attribute in the configuration:
+
+    Friendly.configure :adapter => "mysql",
+                       :user => "root",
+                       :serializer => "msgpack"
+
+And that's it. Just make sure you have the msgpack gem installed.
+
+You can also create your own serializers. Simply create a class that responds to methods generate and parse.
+For instance, you can create a yaml serializer like this:
+
+    class YamlSerializer
+      def self.generate(obj)
+        YAML.dump(obj)
+      end
+
+      def self.parse(source)
+        YAML.load(source)
+      end
+    end
+
+    Friendly.configure :adapter => "mysql",
+                       :user => "root",
+                       :serializer => YamlSerializer
+
 
 Installation
 ============
