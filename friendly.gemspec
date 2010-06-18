@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["James Golick"]
-  s.date = %q{2010-01-25}
+  s.date = %q{2010-06-18}
   s.description = %q{}
   s.email = %q{jamesgolick@gmail.com}
   s.extra_rdoc_files = [
@@ -54,6 +54,11 @@ Gem::Specification.new do |s|
      "lib/friendly/scope.rb",
      "lib/friendly/scope_proxy.rb",
      "lib/friendly/sequel_monkey_patches.rb",
+     "lib/friendly/serializers/json.rb",
+     "lib/friendly/serializers/json_pure.rb",
+     "lib/friendly/serializers/marshal.rb",
+     "lib/friendly/serializers/msgpack.rb",
+     "lib/friendly/serializers/yajl.rb",
      "lib/friendly/storage.rb",
      "lib/friendly/storage_factory.rb",
      "lib/friendly/storage_proxy.rb",
@@ -156,7 +161,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://friendlyorm.com}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.6}
   s.summary = %q{NoSQL with MySQL in Ruby}
   s.test_files = [
     "spec/fakes/data_store_fake.rb",
